@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arsenal FC News</title>
+</head>
+<body>
+    {% extends "news/base.html" %}
+
+    {% block title %}Arsenal FC News{% endblock %}
+
+    {% block content %}
+    <h1>Latest Arsenal FC News</h1>
+
+    {% for article in articles %}
+        <div>
+            <h2><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h2>
+            {% if article.url_to_image %}
+                <img src="{{ article.url_to_image }}" width="300">
+            {% endif %}
+
+            <p>{{ article.description }}</p>
+            <p><small>{{ article.source_name }} — {{ article.published_at }}</small></p>
+        </div>
+        <hr>
+    {% empty %}
+        <p>No articles found yet.</p>
+    {% endfor %}
+    {% endblock %}
+</body>
+</html>
