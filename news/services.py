@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 
+
 def fetch_football_news(team_name):
     url = "https://newsapi.org/v2/everything"
     

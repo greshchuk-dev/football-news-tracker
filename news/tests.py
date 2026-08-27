@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import NewsArticle
+from .models import NewsArticle, Team
 from unittest.mock import patch, MagicMock
 from .services import fetch_football_news
 from django.core.management import call_command
@@ -36,6 +36,29 @@ class ArticleListViewTest(TestCase):
         response = self.client.get('/news/')
         self.assertContains(response, "Arsenal win 3-0")
 
+    def test_view_filters_by_team(self):
+        arsenal = Team.objects.create(name="Arsenal FC", search_query="Arsenal FC")
+        chelsea = Team.objects.create(name="Chelsea FC", search_query="Chelsea FC")
+        NewsArticle.objects.create(
+            title="Arsenal win 3-0",
+            url="https://www.example.com/article-arsenal",
+            published_at= "2026-08-20T10:00:00Z",
+            source_name = "Test Source",
+            team=arsenal
+        )
+        NewsArticle.objects.create(
+            title="Chelsea win 2-1",
+            url="https://www.example.com/article-chelsea",
+            published_at= "2026-08-21T10:00:00Z",
+            source_name = "Test Source",
+            team=chelsea
+        )
+
+        response = self.client.get('/news/', {'team': 'Arsenal FC'})
+
+        self.assertContains(response, "Arsenal win 3-0")
+        self.assertNotContains(response, "Chelsea win 2-1")
+
 class FetchFootballNewsTest(TestCase):
     @patch('news.services.requests.get')
     def test_fetch_returns_articles(self, mock_get):
@@ -66,6 +89,7 @@ class FetchFootballNewsTest(TestCase):
 class FetchNewsCommandTest(TestCase):
     @patch('news.services.requests.get')
     def test_command_saves_new_article(self, mock_get):
+        Team.objects.create(name="Arsenal FC", search_query="Arsenal FC")
         # Build a fake response object, representing the actual API response
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -93,6 +117,7 @@ class FetchNewsCommandTest(TestCase):
 
     @patch('news.services.requests.get')
     def test_command_skips_duplicate(self, mock_get):
+        Team.objects.create(name="Arsenal FC", search_query="Arsenal FC")
         # Precreate an article with the same URL the moke will fetch
         NewsArticle.objects.create(
             title="Existing Article",

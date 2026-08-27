@@ -8,6 +8,7 @@ A Django app that fetches and displays the latest news for a football team (curr
 - Filters results to a specific team using exact-phrase search and trusted sports domains
 - Stores articles in a database, avoiding duplicates
 - Displays a styled news feed
+- Support multiple teams
 
 ## Tech Stack
 - Python / Django

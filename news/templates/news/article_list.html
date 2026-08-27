@@ -10,7 +10,14 @@
     {% block title %}Arsenal FC News{% endblock %}
 
     {% block content %}
-    <h1>Latest Arsenal FC News</h1>
+    <h1>Latest Football News</h1>
+
+    <div>
+        <a href="{% url 'article_list' %}">All Teams</a>
+        {% for team in teams %}
+            | <a href="{% url 'article_list' %}?team={{ team.name }}">{{ team.name }}</a>
+        {% endfor %}
+    </div>
 
     {% for article in articles %}
         <div>
