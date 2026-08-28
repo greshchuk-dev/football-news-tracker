@@ -150,3 +150,44 @@ class FetchNewsCommandTest(TestCase):
 
         self.assertEqual(NewsArticle.objects.count(), 1)  # Should still be 1, no new article added
         self.assertIn("Saved 0 new articles", out.getvalue())
+
+    @patch('news.management.commands.fetch_news.fetch_football_news')
+    def test_command_saves_articles_for_multiple_teams(self, mock_fetch):
+        arsenal = Team.objects.create(name="Arsenal", search_query="Arsenal FC")
+        chelsea = Team.objects.create(name="Chelsea", search_query="Chelsea FC")
+
+        def fake_fetch(query):
+            if query == "Arsenal FC":
+                return [{
+                    "source": {"id": None, "name": "Test Source"},
+                    "author": None,
+                    "title": "Arsenal News",
+                    "description": "desc",
+                    "url": "https://example.com/arsenal-article",
+                    "urlToImage": None,
+                    "publishedAt": "2026-08-20T10:00:00Z",
+                    "content": "content",
+                }]
+            elif query == "Chelsea FC":
+                return [{
+                    "source": {"id": None, "name": "Test Source"},
+                    "author": None,
+                    "title": "Chelsea News",
+                    "description": "desc",
+                    "url": "https://example.com/chelsea-article",
+                    "urlToImage": None,
+                    "publishedAt": "2026-08-20T10:00:00Z",
+                    "content": "content",
+                }]
+            return []
+
+        mock_fetch.side_effect = fake_fetch
+
+        out = StringIO()
+        call_command('fetch_news', stdout=out)
+
+        arsenal_article = NewsArticle.objects.get(url="https://example.com/arsenal-article")
+        chelsea_article = NewsArticle.objects.get(url="https://example.com/chelsea-article")
+
+        self.assertEqual(arsenal_article.team, arsenal)
+        self.assertEqual(chelsea_article.team, chelsea)
