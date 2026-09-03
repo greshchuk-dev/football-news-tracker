@@ -1,5 +1,9 @@
 from django.contrib import admin
 from .models import NewsArticle, Team
+from django_apscheduler.models import DjangoJob, DjangoJobExecution
+
+admin.site.register(DjangoJob)
+admin.site.register(DjangoJobExecution)
 
 @admin.register(NewsArticle)
 class NewsArticleAdmin(admin.ModelAdmin):
